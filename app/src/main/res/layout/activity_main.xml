@@ -36,7 +36,8 @@
             android:layout_gravity="bottom"
             android:enabled="false"
             android:src="@drawable/ic_send"
-            android:background="@color/colorPrimaryDark" />
+            android:background="@color/colorPrimaryDark"
+            android:onClick="sendMessage"/>
     </LinearLayout>
 
 
