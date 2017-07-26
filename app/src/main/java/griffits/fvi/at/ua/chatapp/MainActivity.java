@@ -23,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
     //UI
     private ListView mMessageListView;
     private EditText mMessageEditText;
-    private ImageButton mSendButton;
+    private ImageButton mSendButton, mPhotoPickenButton;
+    private String mUsername;
     private MessageAdapter mMessageAdapter;
 
     // Firebase instance variables
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageListView = (ListView)findViewById(R.id.messageListView);
         mMessageEditText = (EditText) findViewById(R.id.mesageEditText);
         mSendButton = (ImageButton)findViewById(R.id.sendImageButton);
+        mPhotoPickenButton = (ImageButton)findViewById(R.id.photoPickerImageButton);
     }
 
     // send button sends a message

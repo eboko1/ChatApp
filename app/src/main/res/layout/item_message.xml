@@ -19,12 +19,12 @@
         android:text="Message"/>
 
     <TextView
-        android:id="@+id/userNameTextView"
+        android:id="@+id/usernameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_weight="0"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="user name"
+        android:text="username"
         />
 </LinearLayout>
