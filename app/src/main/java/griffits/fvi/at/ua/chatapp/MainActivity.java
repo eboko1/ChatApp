@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     // send button sends a message
     public void sendMessage(View view){
-        Message message = new Message(mMessageEditText.getText().toString());
+        Message message = new Message(mMessageEditText.getText().toString(),null,null);
 
         if (mMessageEditText.getText().length() > 0) {
             mDatabaseReference.push().setValue(message);
