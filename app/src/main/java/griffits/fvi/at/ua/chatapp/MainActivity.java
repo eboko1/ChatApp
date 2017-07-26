@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mSendButton;
     private MessageAdapter mMessageAdapter;
 
-    //Firebase
+    // Firebase instance variables
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         init();
 
 
-        // init FireBase
+        // initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference().child("message");
 
@@ -89,11 +89,13 @@ public class MainActivity extends AppCompatActivity {
         mSendButton = (ImageButton)findViewById(R.id.sendImageButton);
     }
 
+    // send button sends a message
     public void sendMessage(View view){
         Message message = new Message(mMessageEditText.getText().toString());
 
         if (mMessageEditText.getText().length() > 0) {
             mDatabaseReference.push().setValue(message);
+            // сlear input box
             mMessageEditText.setText("");
         } else {
             Toast.makeText(this, "Please enter text", Toast.LENGTH_LONG).show();
@@ -102,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // remove listener with FireBase
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // remove listener for FireBase
         if (mChildEventListener != null){
             mDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
