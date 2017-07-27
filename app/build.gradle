@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "griffits.fvi.at.ua.chatapp"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -26,8 +26,19 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.firebase:firebase-database:10.0.1'
     testCompile 'junit:junit:4.12'
+
+    //firebase
+    compile 'com.google.firebase:firebase-database:11.0.2'
+    compile 'com.google.firebase:firebase-auth:11.0.2'
+    compile 'com.firebaseui:firebase-ui-auth:2.1.1'
+
+    // Required only if Facebook login support is required
+    compile('com.facebook.android:facebook-android-sdk:4.22.1')
+
+    // Required only if Twitter login support is required
+    compile("com.twitter.sdk.android:twitter-core:3.0.0@aar") { transitive = true }
+
 }
 
 
