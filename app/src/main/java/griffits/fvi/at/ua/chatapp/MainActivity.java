@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,8 +24,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.firebase.ui.auth.AuthUI;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mSendButton, mPhotoPickerButton;
     private String mUsername;
     private MessageAdapter mMessageAdapter;
+    private Calendar calendar;
 
     // Firebase instance variables
     private FirebaseDatabase mFirebaseDatabase;
@@ -62,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
         // initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
+        calendar = Calendar.getInstance();
 
-        mDatabaseReference = mFirebaseDatabase.getReference().child("message");
+        mDatabaseReference = mFirebaseDatabase.getReference().child("messages");
         init();
 
         // initialize message ListView and its adapter
@@ -136,16 +141,21 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText = (EditText) findViewById(R.id.mesageEditText);
         mSendButton = (ImageButton)findViewById(R.id.sendImageButton);
         mPhotoPickerButton = (ImageButton)findViewById(R.id.photoPickerImageButton);
+
+
     }
 
     // send button sends a message
     public void sendMessage(View view){
-        Message message = new Message(mMessageEditText.getText().toString(), mUsername, null);
+       Calendar calendar = Calendar.getInstance();
+       String mTime =  ""+calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
+
+        Message message = new Message(mMessageEditText.getText().toString(), mUsername, mTime, null);
 
         if (mMessageEditText.getText().length() > 0) {
             mDatabaseReference.push().setValue(message);
             Log.i(TAG, "it enter edit text "+mMessageEditText.getText());
-            Log.i(TAG, "push massage-> "+message.getText()+ " user name-> "+message.getUserName() + " photo picker->" + message.getPhotoURL() );
+            Log.i(TAG, "push massage-> "+message.getText()+ " user name-> "+message.getUserName() +" date-> " + message.getTime()+ " photo picker->" + message.getPhotoURL() );
 
             // сlear input box
             mMessageEditText.setText("");

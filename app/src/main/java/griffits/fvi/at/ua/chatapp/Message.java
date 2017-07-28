@@ -9,15 +9,19 @@ public class Message {
     private String text;
     private String userName;
     private String photoURL;
+    private String time;
 
     // for firebase
     public Message(){
     }
 
-    public Message(String text, String userName, String photoURL) {
+
+    public Message(String text, String userName, String time, String photoURL ) {
         this.text = text;
         this.userName = userName;
+        this.time = time;
         this.photoURL = photoURL;
+
     }
 
     public String getText() {
@@ -42,5 +46,13 @@ public class Message {
 
     public void setPhotoURL(String photoURL) {
         this.photoURL = photoURL;
+    }
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getTime() {
+
+        return time;
     }
 }

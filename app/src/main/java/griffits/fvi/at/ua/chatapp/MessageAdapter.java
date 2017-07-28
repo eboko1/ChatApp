@@ -33,11 +33,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         TextView itemTextView = (TextView)convertView.findViewById(R.id.itemTextView);
         TextView usernameTextView = (TextView)convertView.findViewById(R.id.usernameTextView);
+        TextView timeTextView = (TextView)convertView.findViewById(R.id.timeTextView);
 
         Message message = getItem(position);
 
+
+        usernameTextView.setText(message.getUserName()+", ");
+        timeTextView.setText(message.getTime());
         itemTextView.setText(message.getText());
-        usernameTextView.setText(message.getUserName());
 
 
         return convertView;
