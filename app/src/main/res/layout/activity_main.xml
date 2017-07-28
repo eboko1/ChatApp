@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="griffits.fvi.at.ua.chatapp.MainActivity">
 
   <ListView
@@ -14,7 +15,8 @@
       android:transcriptMode="alwaysScroll"
       android:layout_alignParentTop="true"
       android:layout_alignParentLeft="true"
-      android:layout_alignParentStart="true" />
+      android:layout_alignParentStart="true"
+      android:layout_above="@+id/linearLayout" />
 
 
     <LinearLayout
@@ -29,10 +31,11 @@
             android:id="@+id/photoPickerImageButton"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:background="@color/colorAccent"
-            android:src="@drawable/ic_picker"
             android:layout_gravity="bottom"
-            />
+            android:background="@color/colorAccent"
+            android:onClick="onClickPhotoPickerButton"
+            android:src="@drawable/ic_picker" />
+
         <EditText
             android:id="@+id/mesageEditText"
             android:layout_width="0dp"

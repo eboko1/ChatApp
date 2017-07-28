@@ -1,8 +1,12 @@
 package griffits.fvi.at.ua.chatapp;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,8 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    // Choose an arbitrary request code value
-    private static final int RC_SIGN_IN = 1;
+    private static final String TAG = "MainActivity";
+
+    public static final int RC_SIGN_IN = 1;
+    public static final String ANONYMOUS = "anonymous";
     //UI
     private ListView mMessageListView;
     private EditText mMessageEditText;
@@ -38,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
 
-    //  FirebaseUI for Authentication
+    // FirebaseUI for Authentication
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -47,67 +53,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
 
-        // image PickerButton shows an img picker to upload a image for message
-        mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Log.i(TAG, "onCreate");
 
-            }
-        });
+        mUsername = ANONYMOUS;
+
+
         // initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
+
         mDatabaseReference = mFirebaseDatabase.getReference().child("message");
+        init();
 
+        // initialize message ListView and its adapter
+        List<Message> messages = new ArrayList<>();
+        mMessageAdapter = new MessageAdapter(this, R.layout.item_message, messages);
+        mMessageListView.setAdapter(mMessageAdapter);
 
-        // create Listener for Firebase
-        if (mChildEventListener == null){
-            mChildEventListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Message message = dataSnapshot.getValue(Message.class);
-                mMessageAdapter.add(message);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            };
-            mDatabaseReference.addChildEventListener(mChildEventListener);
+        //Authenticating Users
             mAuthStateListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser user = firebaseAuth.getCurrentUser();
                     if(user != null){
                         //user sing in
-                        Toast.makeText(MainActivity.this, "Welcome!!!", Toast.LENGTH_LONG).show();
+                        // Toast.makeText(MainActivity.this, "Welcome!!!", Toast.LENGTH_LONG).show();
+                        onSignedInInitialize(user.getDisplayName());
+                        Log.i(TAG, "user name = "+ user.getDisplayName());
                     } else {
                         // user sing out
+                        onSignedOutCleanup();
+
                         startActivityForResult(
                                 AuthUI.getInstance()
                                         .createSignInIntentBuilder()
                                         .setIsSmartLockEnabled(false)
                                         .setAvailableProviders(
                                                 Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                       // new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).build(),
+                                                        // new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).build(),
                                                         new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
                                                         new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
                                                         new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build()))
@@ -117,12 +101,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
         }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
 
-        List<Message> messages = new ArrayList<>();
-        mMessageAdapter = new MessageAdapter(this, R.layout.item_message, messages);
-        mMessageListView.setAdapter(mMessageAdapter);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                AuthUI.getInstance().signOut(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN)
+            if(resultCode == RESULT_OK){
+                Toast.makeText(MainActivity.this, "Signed In", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(MainActivity.this, "Please Sing In", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+    }
     // init UI
     protected void init(){
         mMessageListView = (ListView)findViewById(R.id.messageListView);
@@ -137,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (mMessageEditText.getText().length() > 0) {
             mDatabaseReference.push().setValue(message);
+            Log.i(TAG, "it enter edit text "+mMessageEditText.getText());
+            Log.i(TAG, "push massage-> "+message.getText()+ " user name-> "+message.getUserName() + " photo picker->" + message.getPhotoURL() );
+
             // сlear input box
             mMessageEditText.setText("");
         } else {
@@ -144,25 +154,88 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
+    // image PickerButton shows an img picker to upload a image for message
+    public void onClickPhotoPickerButton(View v){
+
+    }
+   @Override
     protected void onPause() {
         super.onPause();
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-    }
+       if (mAuthStateListener != null) {
+           mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+       }
+       detachChildEventListener();
+       mMessageAdapter.clear();
+       Log.i(TAG, "onPause()" );
+   }
 
     @Override
     protected void onResume() {
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        Log.i(TAG, "onResume()" );
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // remove listener for FireBase
+    private void onSignedInInitialize(String username) {
+        mUsername = username;
+        attachChildEventListener();
+    }
+
+    private void onSignedOutCleanup() {
+        mUsername = ANONYMOUS;
+        mMessageAdapter.clear();
+        detachChildEventListener();
+
+    }
+
+
+    public void attachChildEventListener() {
+        if (mChildEventListener == null){
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Message message = dataSnapshot.getValue(Message.class);
+                    mMessageAdapter.add(message);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };
+
+            mDatabaseReference.addChildEventListener(mChildEventListener);
+        }
+    }
+
+    public void detachChildEventListener() {
         if (mChildEventListener != null){
             mDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }
+
+
+
+ /*   @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // remove listener for FireBase
+        if (mChildEventListener != null){
+            Log.i(TAG, "onDestroy() mChildEventListener = " +mChildEventListener );
+            mDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+            Log.i(TAG, "onDestroy() mChildEventListener =" + mChildEventListener);
+        }
+    }*/
 }
