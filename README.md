@@ -11,7 +11,6 @@ Simple Chat Application with Firebase
     <br>compile 'com.google.firebase:firebase-database:11.0.2'
     <br>compile 'com.google.firebase:firebase-auth:11.0.2'
     <br>compile 'com.firebaseui:firebase-ui-auth:2.1.1'
-
-    <br>// Required only if Facebook login support is required
+  <br> // Required only if Facebook login support is required
     <br>compile('com.facebook.android:facebook-android-sdk:4.22.1')
 
